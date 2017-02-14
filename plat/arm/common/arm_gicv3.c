@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,9 +59,7 @@ static const unsigned int g0_interrupt_array[] = {
 	PLAT_ARM_G0_IRQS
 };
 
-const gicv3_driver_data_t arm_gic_data = {
-	.gicd_base = PLAT_ARM_GICD_BASE,
-	.gicr_base = PLAT_ARM_GICR_BASE,
+static gicv3_driver_data_t arm_gic_data = {
 	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
 	.g1s_interrupt_num = ARRAY_SIZE(g1s_interrupt_array),
 	.g0_interrupt_array = g0_interrupt_array,
@@ -73,6 +71,9 @@ const gicv3_driver_data_t arm_gic_data = {
 
 void plat_arm_gic_driver_init(void)
 {
+	arm_gic_data.gicd_base = plat_phys_to_virt(PLAT_ARM_GICD_BASE);
+	arm_gic_data.gicr_base = plat_phys_to_virt(PLAT_ARM_GICR_BASE);
+
 	/*
 	 * The GICv3 driver is initialized in EL3 and does not need
 	 * to be initialized again in SEL1. This is because the S-EL1

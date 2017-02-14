@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,6 +61,15 @@ void bl31_plat_runtime_setup(void)
 	 * from BL31 will be suppressed.
 	 */
 	console_uninit();
+}
+
+/*
+ * The common weak definition to convert PA to VA. This function assumes
+ * identity PA to VA mapping.
+ */
+uintptr_t plat_phys_to_virt(unsigned long long pa)
+{
+	return (uintptr_t)pa;
 }
 
 #if !ENABLE_PLAT_COMPAT

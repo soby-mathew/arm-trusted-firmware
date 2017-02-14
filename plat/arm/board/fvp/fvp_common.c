@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include <gicv2.h>
 #include <mmio.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <v2m_def.h>
 #include "../fvp_def.h"
 
@@ -145,7 +146,7 @@ void fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id;
 
-	sys_id = mmio_read_32(V2M_SYSREGS_BASE + V2M_SYS_ID);
+	sys_id = mmio_read_32(plat_phys_to_virt(V2M_SYSREGS_BASE) + V2M_SYS_ID);
 	rev = (sys_id >> V2M_SYS_ID_REV_SHIFT) & V2M_SYS_ID_REV_MASK;
 	hbi = (sys_id >> V2M_SYS_ID_HBI_SHIFT) & V2M_SYS_ID_HBI_MASK;
 	bld = (sys_id >> V2M_SYS_ID_BLD_SHIFT) & V2M_SYS_ID_BLD_MASK;
@@ -197,7 +198,7 @@ void fvp_config_setup(void)
 		}
 		break;
 	case HBI_BASE_FVP:
-		arm_config.flags |= ARM_CONFIG_BASE_MMAP |
+		arm_config.flags = ARM_CONFIG_BASE_MMAP |
 			ARM_CONFIG_HAS_INTERCONNECT | ARM_CONFIG_HAS_TZC;
 
 		/*
@@ -223,7 +224,8 @@ void fvp_interconnect_init(void)
 {
 	if (arm_config.flags & ARM_CONFIG_HAS_INTERCONNECT) {
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
-		if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
+		if (ccn_get_part0_id(plat_phys_to_virt(PLAT_ARM_CCN_BASE))
+				!= CCN_502_PART0_ID) {
 			ERROR("Unrecognized CCN variant detected. Only CCN-502"
 					" is supported");
 			panic();

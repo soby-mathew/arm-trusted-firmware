@@ -918,6 +918,16 @@ This function flushes to main memory all the image params that are passed to
 next image. This function is currently invoked in BL2 to flush this information
 to the next BL image, when LOAD_IMAGE_V2 is enabled.
 
+### Function : plat_phys_to_virt()
+
+    Argument : unsigned long long
+    Return   : uintptr_t
+
+This function returns the virtual address corresponding to the physical address
+specified in the argument. The default implementation assumes identity physical
+to virtual address mapping and returns the supplied argument.
+
+
 3.  Modifications specific to a Boot Loader stage
 -------------------------------------------------
 

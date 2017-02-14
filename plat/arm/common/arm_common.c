@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <platform_def.h>
 #include <xlat_tables.h>
 
@@ -190,11 +191,13 @@ void arm_configure_sys_timer(void)
 	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
 	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
 	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
-	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTACR_BASE(PLAT_ARM_NSTIMER_FRAME_ID), reg_val);
+	mmio_write_32(plat_phys_to_virt(ARM_SYS_TIMCTL_BASE) +
+			CNTACR_BASE(PLAT_ARM_NSTIMER_FRAME_ID), reg_val);
 #endif /* ARM_CONFIG_CNTACR */
 
 	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
-	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+	mmio_write_32(plat_phys_to_virt(ARM_SYS_TIMCTL_BASE) + CNTNSAR,
+			reg_val);
 }
 #endif /* ARM_SYS_TIMCTL_BASE */
 
@@ -213,7 +216,7 @@ unsigned int plat_get_syscnt_freq2(void)
 	unsigned int counter_base_frequency;
 
 	/* Read the frequency from Frequency modes table */
-	counter_base_frequency = mmio_read_32(ARM_SYS_CNTCTL_BASE + CNTFID_OFF);
+	counter_base_frequency = mmio_read_32(plat_phys_to_virt(ARM_SYS_CNTCTL_BASE + CNTFID_OFF));
 
 	/* The first entry of the frequency modes table must not be 0 */
 	if (counter_base_frequency == 0)

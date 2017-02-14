@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,9 +55,9 @@ static const unsigned int irq_sec_array[] = {
 
 void plat_arm_gic_driver_init(void)
 {
-	arm_gic_init(PLAT_ARM_GICC_BASE,
-		     PLAT_ARM_GICD_BASE,
-		     PLAT_ARM_GICR_BASE,
+	arm_gic_init(plat_phys_to_virt(PLAT_ARM_GICC_BASE),
+		     plat_phys_to_virt(PLAT_ARM_GICD_BASE),
+		     plat_phys_to_virt(PLAT_ARM_GICR_BASE),
 		     irq_sec_array,
 		     ARRAY_SIZE(irq_sec_array));
 }

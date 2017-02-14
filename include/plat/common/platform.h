@@ -93,6 +93,8 @@ int plat_crash_console_putc(int c);
 void plat_error_handler(int err) __dead2;
 void plat_panic_handler(void) __dead2;
 
+uintptr_t plat_phys_to_virt(unsigned long long pa);
+
 /*******************************************************************************
  * Mandatory BL1 functions
  ******************************************************************************/

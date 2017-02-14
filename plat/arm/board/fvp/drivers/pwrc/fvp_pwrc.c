@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,16 @@
 #include <bakery_lock.h>
 #include <mmio.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include "../../fvp_def.h"
 #include "../../fvp_private.h"
 #include "fvp_pwrc.h"
+
+/*
+ * Global variable to store the virtual address for accessing the power
+ * controller registers.
+ */
+uintptr_t virt_pwrc_base;
 
 /*
  * TODO: Someday there will be a generic power controller api. At the moment
@@ -50,8 +57,8 @@ unsigned int fvp_pwrc_read_psysr(u_register_t mpidr)
 {
 	unsigned int rc;
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PSYSR_OFF, (unsigned int) mpidr);
-	rc = mmio_read_32(PWRC_BASE + PSYSR_OFF);
+	mmio_write_32(virt_pwrc_base + PSYSR_OFF, (unsigned int) mpidr);
+	rc = mmio_read_32(virt_pwrc_base + PSYSR_OFF);
 	arm_lock_release();
 	return rc;
 }
@@ -59,21 +66,21 @@ unsigned int fvp_pwrc_read_psysr(u_register_t mpidr)
 void fvp_pwrc_write_pponr(u_register_t mpidr)
 {
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PPONR_OFF, (unsigned int) mpidr);
+	mmio_write_32(virt_pwrc_base + PPONR_OFF, (unsigned int) mpidr);
 	arm_lock_release();
 }
 
 void fvp_pwrc_write_ppoffr(u_register_t mpidr)
 {
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PPOFFR_OFF, (unsigned int) mpidr);
+	mmio_write_32(virt_pwrc_base + PPOFFR_OFF, (unsigned int) mpidr);
 	arm_lock_release();
 }
 
 void fvp_pwrc_set_wen(u_register_t mpidr)
 {
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
+	mmio_write_32(virt_pwrc_base + PWKUPR_OFF,
 		      (unsigned int) (PWKUPR_WEN | mpidr));
 	arm_lock_release();
 }
@@ -81,7 +88,7 @@ void fvp_pwrc_set_wen(u_register_t mpidr)
 void fvp_pwrc_clr_wen(u_register_t mpidr)
 {
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PWKUPR_OFF,
+	mmio_write_32(virt_pwrc_base + PWKUPR_OFF,
 		      (unsigned int) mpidr);
 	arm_lock_release();
 }
@@ -89,14 +96,24 @@ void fvp_pwrc_clr_wen(u_register_t mpidr)
 void fvp_pwrc_write_pcoffr(u_register_t mpidr)
 {
 	arm_lock_get();
-	mmio_write_32(PWRC_BASE + PCOFFR_OFF, (unsigned int) mpidr);
+	mmio_write_32(virt_pwrc_base + PCOFFR_OFF, (unsigned int) mpidr);
 	arm_lock_release();
 }
 
-/* Nothing else to do here apart from initializing the lock */
+/*
+ * Initialize the lock and resolve the virtual address of the power
+ * controller register base.
+ */
 void plat_arm_pwrc_setup(void)
 {
 	arm_lock_init();
+	virt_pwrc_base = plat_phys_to_virt(PWRC_BASE);
+
+	/*
+	 * Flush the `virt_pwrc_base` variable to enable the secondaries to see
+	 * the update on power up.
+	 */
+	flush_dcache_range((uintptr_t)&virt_pwrc_base, sizeof(virt_pwrc_base));
 }
 
 

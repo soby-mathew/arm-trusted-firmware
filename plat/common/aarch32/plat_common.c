@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,8 +37,18 @@
  * platforms but may also be overridden by a platform if required.
  */
 #pragma weak bl32_plat_enable_mmu
+#pragma weak plat_phys_to_virt
 
 void bl32_plat_enable_mmu(uint32_t flags)
 {
 	enable_mmu_secure(flags);
+}
+
+/*
+ * The common weak definition to convert PA to VA. This function assumes
+ * identity PA to VA mapping.
+ */
+uintptr_t plat_phys_to_virt(unsigned long long pa)
+{
+	return (uintptr_t)pa;
 }
