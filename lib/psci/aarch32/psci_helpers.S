@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -146,18 +146,34 @@ func do_stack_maintenance
 	mov	r0, sp
 	bl	flush_dcache_range
 
+	mov	r0, r4
+	pop	{r4, lr}
+
+	b	do_unused_stack_invalidate
+endfunc do_stack_maintenance
+
+	/* ------------------------------------------------------
+	 * void do_unused_stack_invalidate(uinptptr_t stack_base)
+	 * Invalidate the unused stack, as the stack could have
+	 * been deeper previously and dirty line evictions from
+	 * there could corrupt the stack later on.
+	 * Define this function as weak so as to enable AArch32
+	 * Secure Payload to override it.
+	 * ------------------------------------------------------
+	 */
+	.weak do_unused_stack_invalidate
+
+func do_unused_stack_invalidate
 	/* ---------------------------------------------
 	 * Calculate and store the size of the unused
 	 * stack memory in r1. Calculate and store the
 	 * stack base address in r0.
 	 * ---------------------------------------------
 	 */
-	sub	r0, r4, #PLATFORM_STACK_SIZE
+	sub	r0, r0, #PLATFORM_STACK_SIZE
 	sub	r1, sp, r0
-	bl	inv_dcache_range
-
-	pop	{r4, pc}
-endfunc do_stack_maintenance
+	b	inv_dcache_range
+endfunc do_unused_stack_invalidate
 
 /* -----------------------------------------------------------------------
  * This function is called to indicate to the power controller that it
