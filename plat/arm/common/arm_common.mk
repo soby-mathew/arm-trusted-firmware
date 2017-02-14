@@ -28,7 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-ifeq (${ARCH}, aarch64)
   # On ARM standard platorms, the TSP can execute from Trusted SRAM, Trusted
   # DRAM (if available) or the TZC secured area of DRAM.
   # Trusted SRAM is the default.
@@ -47,6 +46,7 @@ ifeq (${ARCH}, aarch64)
   # Process flags
   $(eval $(call add_define,ARM_TSP_RAM_LOCATION_ID))
 
+ifeq (${ARCH}, aarch64)
   # Process ARM_BL31_IN_DRAM flag
   ARM_BL31_IN_DRAM		:=	0
   $(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
