@@ -116,6 +116,13 @@ define IMG_DUMP
     ${BUILD_DIR}/bl$(1).dump
 endef
 
+# IMG_AR defines the default archive file corresponding to the supplied
+# archive name
+#   $(1) = BL stage (32)
+define IMG_AR
+    ${BUILD_PLAT}/exports/libbl$(1).a
+endef
+
 # IMG_BIN defines the default image file corresponding to a BL stage
 #   $(1) = BL stage (2, 30, 31, 32, 33)
 define IMG_BIN
@@ -358,3 +365,56 @@ $(eval $(call MAKE_TOOL_ARGS,$(1),$(BIN),$(2)))
 
 endef
 
+# MAKE_AR_EXPORT macro defines the targets and options to create a static
+# library corresponding to a BL stage and also installs files listed in
+# EXPORT_FILES to the export directory
+# Arguments:
+#   $(1) = BL name
+define MAKE_AR_EXPORT
+        $(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
+        $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
+        $(eval SOURCES    := $(BL_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL32_COMMON_SOURCES))
+        $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
+        $(eval LIB_AR     := $(call IMG_AR,$(1)))
+
+        # We use sort only to get a list of unique object directory names.
+        # ordering is not relevant but sort removes duplicates.
+        $(eval TEMP_OBJ_DIRS := $(sort $(BUILD_DIR)/ $(dir ${OBJS})))
+        # The $(dir ) function leaves a trailing / on the directory names
+        # We append a . then strip /. from each, to remove the trailing / characters
+        # This gives names suitable for use as make rule targets.
+        $(eval OBJ_DIRS   := $(subst /.,,$(addsuffix .,$(TEMP_OBJ_DIRS))))
+
+        $(eval EXPORT_DIR := $(BUILD_PLAT)/exports)
+        $(eval CP_FILES   := $(addprefix $(EXPORT_DIR)/, $(notdir $(EXPORT_FILES))))
+
+# Create export directory rule
+$(eval $(call MAKE_PREREQ_DIR,${EXPORT_DIR},))
+
+# Create generators for object directory structure
+$(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},)))
+
+# Create generators for export files
+$(eval $(foreach f, ${EXPORT_FILES}, \
+	$(eval $(call INSTALL_FILE, ${f}, $(EXPORT_DIR)))))
+
+.PHONY : bl${1}_dirs
+
+# We use order-only prerequisites to ensure that directories are created,
+# but do not cause re-builds every time a file is written.
+bl${1}_dirs: | ${OBJ_DIRS}
+
+$(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
+
+$(LIB_AR): $(OBJS)
+	@echo "  AR      $$@"
+	$$(Q)$$(AR) cr $$@ $(OBJS)
+	@echo
+	@echo "Built $$@ successfully"
+	@echo
+
+.PHONY: bl$(1)
+bl$(1): $(EXPORT_DIR) $(LIB_AR) | ${CP_FILES}
+
+all: bl$(1)
+endef

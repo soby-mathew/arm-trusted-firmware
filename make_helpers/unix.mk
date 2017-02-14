@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -76,6 +76,12 @@ ${1} : ${2}
 
     define SHELL_REMOVE_DIR
 	-${Q}rm -rf  "${1}"
+    endef
+
+    define INSTALL_FILE
+${2}/$(notdir ${1}) : ${1}
+	@echo "  INSTALL $$@"
+	${Q}cp -p $$< $$@
     endef
 
 endif

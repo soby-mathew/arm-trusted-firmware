@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -91,6 +91,9 @@ ifndef BUILD_ENV_MK
     endif
     ifndef SHELL_REMOVE_DIR
         $(error "SHELL_REMOVE_DIR not defined for build environment.")
+    endif
+    ifndef INSTALL_FILE
+        $(error "INSTALL_FILE not defined for build environment.")
     endif
 
 endif

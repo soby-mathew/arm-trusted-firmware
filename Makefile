@@ -536,9 +536,15 @@ endif
 # build system will call FIP_ADD_IMG to print a warning message and abort the
 # process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
+ifdef BUILD_BL32_LIB
+$(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},tos-fw)),\
+	$(if ${BL32_SOURCES}, $(eval $(call MAKE_AR_EXPORT,32)),\
+		$(eval $(call FIP_ADD_IMG,BL32,--tos-fw))))
+else
 $(if ${BL32}, $(eval $(call MAKE_TOOL_ARGS,32,${BL32},tos-fw)),\
 	$(if ${BL32_SOURCES}, $(eval $(call MAKE_BL,32,tos-fw)),\
 		$(eval $(call FIP_ADD_IMG,BL32,--tos-fw))))
+endif
 endif
 
 # Add the BL33 image if required by the platform
@@ -666,7 +672,7 @@ help:
 	@echo "  bl2            Build the BL2 binary"
 	@echo "  bl2u           Build the BL2U binary"
 	@echo "  bl31           Build the BL31 binary"
-	@echo "  bl32           Build the BL32 binary. If ARCH=aarch32, then "
+	@echo "  bl32           Build the BL32 binary/archive. If ARCH=aarch32, then "
 	@echo "                 this builds secure payload specified by AARCH32_SP"
 	@echo "  certificates   Build the certificates (requires 'GENERATE_COT=1')"
 	@echo "  fip            Build the Firmware Image Package (FIP)"

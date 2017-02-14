@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -81,6 +81,16 @@ ${1} : ${2}
 	$(eval tmp_dir:=$(subst /,\,${1}))
 	-@if not exist "$(tmp_dir)"  mkdir "${tmp_dir}"
 
+    endef
+
+    # ${1} is the file to be copied.
+    # ${2} is the destination file name.
+    define INSTALL_FILE
+${2}/$(notdir ${1}) : ${1}
+	@echo "  INSTALL $$@"
+	$(eval tmp_dir:=$(subst /,\,${1}))
+	-@if not exist "$(tmp_dir)"  mkdir "${tmp_dir}"
+	$(call SHELL_COPY, ${1}, ${2})
     endef
 
     # ${1} is the directory to be removed.
