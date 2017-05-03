@@ -97,11 +97,11 @@ typedef enum {
 	scpi_system_reset = 2
 } scpi_system_state_t;
 
-extern int scpi_wait_ready(void);
-extern void scpi_set_css_power_state(unsigned int mpidr,
-					scpi_power_state_t cpu_state,
-					scpi_power_state_t cluster_state,
-					scpi_power_state_t css_state);
+int scpi_wait_ready(void);
+void scpi_set_css_power_state(unsigned int mpidr,
+				scpi_power_state_t cpu_state,
+				scpi_power_state_t cluster_state,
+				scpi_power_state_t css_state);
 int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
 		unsigned int *cluster_state_p);
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
